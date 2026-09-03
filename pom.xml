@@ -82,5 +82,10 @@
           <version>3.1.1</version>
           <scope>compile</scope>
       </dependency>
+      <dependency>
+    	<groupId>org.sitemesh</groupId>
+    	<artifactId>sitemesh</artifactId>
+    	<version>3.2.1</version>
+		</dependency>
   </dependencies>
 </project>

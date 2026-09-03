@@ -1,0 +1,4 @@
+<sitemesh>
+    <mapping path="/admin/*" decorator="/views/admin/layout.jsp"/>
+    <mapping path="/profile" decorator="/views/admin/layout.jsp"/>
+</sitemesh>

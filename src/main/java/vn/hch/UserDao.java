@@ -1,7 +1,10 @@
 package vn.hch;
 
+import java.util.List;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.TypedQuery;
 
 public class UserDao implements IUserDao {
     @Override
@@ -9,6 +12,19 @@ public class UserDao implements IUserDao {
         EntityManager enma = JpaConfig.getEntityManager();
         try {
             return enma.find(User.class, username);
+        } finally {
+            enma.close();
+        }
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        EntityManager enma = JpaConfig.getEntityManager();
+        try {
+            TypedQuery<User> query = enma.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class);
+            query.setParameter("email", email);
+            List<User> list = query.getResultList();
+            return list.isEmpty() ? null : list.get(0);
         } finally {
             enma.close();
         }

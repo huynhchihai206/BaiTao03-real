@@ -6,6 +6,7 @@ xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml
         <class>vn.hch.Category</class>
         <class>vn.hch.Video</class>
         <class>vn.hch.User</class>
+        <class>vn.hch.Product</class>
         <properties>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlserver://localhost:1433;encrypt=true;trustServerCertificate=true;databaseName=webst2" />
             <property name="jakarta.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />

@@ -18,6 +18,9 @@
                         <a class="nav-link" href="${pageContext.request.contextPath}/admin/categories">Quản lý Category</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/admin/products">Quản lý Product</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="${pageContext.request.contextPath}/profile">Profile cá nhân</a>
                     </li>
                 </ul>

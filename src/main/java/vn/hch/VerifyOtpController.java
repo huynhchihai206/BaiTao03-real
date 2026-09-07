@@ -19,8 +19,12 @@ public class VerifyOtpController extends HttpServlet {
         String email = req.getParameter("email");
         String otp = req.getParameter("otp");
 
-        if (otp == null || otp.trim().isEmpty()) {
-            req.setAttribute("error", "Vui lòng nhập mã OTP");
+        String error = ValidationUtil.email(email);
+        if (error == null) {
+            error = ValidationUtil.otp(otp);
+        }
+        if (error != null) {
+            req.setAttribute("error", error);
             req.setAttribute("email", email);
             req.getRequestDispatcher("/views/verify-otp.jsp").forward(req, resp);
             return;

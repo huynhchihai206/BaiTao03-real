@@ -13,4 +13,63 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+    <servlet>
+        <servlet-name>home</servlet-name>
+        <servlet-class>vn.hch.HomeController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>home</servlet-name>
+        <url-pattern>/home</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>home</servlet-name>
+        <url-pattern>/trang-chu</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>profile</servlet-name>
+        <servlet-class>vn.hch.ProfileServlet</servlet-class>
+        <multipart-config>
+            <file-size-threshold>2097152</file-size-threshold>
+            <max-file-size>10485760</max-file-size>
+            <max-request-size>52428800</max-request-size>
+        </multipart-config>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>profile</servlet-name>
+        <url-pattern>/profile</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>profile</servlet-name>
+        <url-pattern>/admin/profile</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>product</servlet-name>
+        <servlet-class>vn.hch.ProductController</servlet-class>
+        <multipart-config/>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>product</servlet-name>
+        <url-pattern>/admin/products</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>product</servlet-name>
+        <url-pattern>/admin/product/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>category</servlet-name>
+        <servlet-class>vn.hch.CategoryController</servlet-class>
+        <multipart-config/>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>category</servlet-name>
+        <url-pattern>/admin/categories</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>category</servlet-name>
+        <url-pattern>/admin/category/*</url-pattern>
+    </servlet-mapping>
+
 </web-app>

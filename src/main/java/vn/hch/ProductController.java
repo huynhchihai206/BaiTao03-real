@@ -9,16 +9,11 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.MultipartConfig;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
-@MultipartConfig()
-@WebServlet(urlPatterns = { "/admin/products", "/admin/product/add", "/admin/product/insert",
-        "/admin/product/edit", "/admin/product/update", "/admin/product/delete" })
 public class ProductController extends HttpServlet {
     private static final long serialVersionUID = 1L;
     public IProductService productService = new ProductServiceImpl();
@@ -35,12 +30,21 @@ public class ProductController extends HttpServlet {
             req.setAttribute("listcate", cateService.findAll());
             req.getRequestDispatcher("/views/admin/product-add.jsp").forward(req, resp);
         } else if (url.contains("/admin/product/edit")) {
-            int id = Integer.parseInt(req.getParameter("id"));
-            req.setAttribute("product", productService.findById(id));
+            int id = parseId(req.getParameter("id"));
+            Product product = productService.findById(id);
+            if (product == null) {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy sản phẩm");
+                return;
+            }
+            req.setAttribute("product", product);
             req.setAttribute("listcate", cateService.findAll());
             req.getRequestDispatcher("/views/admin/product-edit.jsp").forward(req, resp);
         } else {
-            int id = Integer.parseInt(req.getParameter("id"));
+            int id = parseId(req.getParameter("id"));
+            if (id < 0) {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Mã sản phẩm không hợp lệ");
+                return;
+            }
             productService.delete(id);
             resp.sendRedirect(req.getContextPath() + "/admin/products");
         }
@@ -50,14 +54,41 @@ public class ProductController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String url = req.getRequestURI();
         if (url.contains("/admin/product/insert")) {
+            String error = validateForm(req);
+            if (error == null) {
+                error = validateImagePart(req);
+            }
+            if (error != null) {
+                req.setAttribute("error", error);
+                req.setAttribute("listcate", cateService.findAll());
+                req.getRequestDispatcher("/views/admin/product-add.jsp").forward(req, resp);
+                return;
+            }
             Product product = new Product();
             bindForm(req, product);
             product.setImages(resolveImage(req, null));
             productService.insert(product);
             resp.sendRedirect(req.getContextPath() + "/admin/products");
         } else if (url.contains("/admin/product/update")) {
-            int productId = Integer.parseInt(req.getParameter("productId"));
+            String error = validateForm(req);
+            if (error == null) {
+                error = validateImagePart(req);
+            }
+            if (error != null) {
+                req.setAttribute("error", error);
+                req.setAttribute("product", productService.findById(parseId(req.getParameter("productId"))));
+                req.setAttribute("listcate", cateService.findAll());
+                req.getRequestDispatcher("/views/admin/product-edit.jsp").forward(req, resp);
+                return;
+            }
+            int productId = parseId(req.getParameter("productId"));
             Product product = productService.findById(productId);
+            if (product == null) {
+                req.setAttribute("error", "Sản phẩm không tồn tại");
+                req.setAttribute("listcate", cateService.findAll());
+                req.getRequestDispatcher("/views/admin/product-edit.jsp").forward(req, resp);
+                return;
+            }
             String fileold = product.getImages();
             bindForm(req, product);
             product.setImages(resolveImage(req, fileold));
@@ -74,6 +105,50 @@ public class ProductController extends HttpServlet {
         product.setCategory(cateService.findById(categoryId));
     }
 
+    private String validateForm(HttpServletRequest req) {
+        String error = ValidationUtil.required(req.getParameter("productname"), "Tên sản phẩm");
+        if (error != null) {
+            return error;
+        }
+        try {
+            double price = Double.parseDouble(req.getParameter("price"));
+            if (!Double.isFinite(price) || price < 0) {
+                return "Giá sản phẩm phải là số không âm";
+            }
+            int categoryId = Integer.parseInt(req.getParameter("categoryId"));
+            if (categoryId <= 0 || cateService.findById(categoryId) == null) {
+                return "Danh mục không hợp lệ";
+            }
+            return ValidationUtil.imageUrl(req.getParameter("images"));
+        } catch (NumberFormatException e) {
+            return "Giá và danh mục phải là số hợp lệ";
+        }
+        return null;
+    }
+
+    private String validateImagePart(HttpServletRequest req) throws IOException, ServletException {
+        Part part = req.getPart("images1");
+        if (part == null || part.getSize() == 0) {
+            return null;
+        }
+        String filename = Paths.get(part.getSubmittedFileName()).getFileName().toString();
+        String error = ValidationUtil.imageFilename(filename);
+        if (error != null) {
+            return error;
+        }
+        return part.getContentType() != null && part.getContentType().toLowerCase().startsWith("image/")
+                ? null
+                : "File tải lên phải có định dạng ảnh";
+    }
+
+    private int parseId(String value) {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
     private String resolveImage(HttpServletRequest req, String fileold) throws IOException, ServletException {
         String images = req.getParameter("images");
         String uploadPath = Constant.DIR;
@@ -84,10 +159,15 @@ public class ProductController extends HttpServlet {
         try {
             Part part = req.getPart("images1");
             if (part != null && part.getSize() > 0) {
+                String filename = Paths.get(part.getSubmittedFileName()).getFileName().toString();
+                String imageError = ValidationUtil.imageFilename(filename);
+                if (imageError != null || part.getContentType() == null
+                        || !part.getContentType().toLowerCase().startsWith("image/")) {
+                    throw new ServletException(imageError != null ? imageError : "File tải lên phải có định dạng ảnh");
+                }
                 if (fileold != null && !fileold.isEmpty() && !fileold.startsWith("https")) {
                     deleteFile(uploadPath + "\\" + fileold);
                 }
-                String filename = Paths.get(part.getSubmittedFileName()).getFileName().toString();
                 int index = filename.lastIndexOf(".");
                 String ext = filename.substring(index + 1);
                 String fname = System.currentTimeMillis() + "." + ext;

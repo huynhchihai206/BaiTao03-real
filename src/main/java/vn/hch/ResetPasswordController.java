@@ -20,10 +20,11 @@ public class ResetPasswordController extends HttpServlet {
         String otp = req.getParameter("otp");
         String newPassword = req.getParameter("newPassword");
 
-        String error = null;
-        if (otp == null || otp.trim().isEmpty()) {
-            error = "Vui lòng nhập mã OTP";
-        } else if (newPassword == null || newPassword.length() < 6) {
+        String error = ValidationUtil.email(email);
+        if (error == null) {
+            error = ValidationUtil.otp(otp);
+        }
+        if (error == null && (newPassword == null || newPassword.length() < 6)) {
             error = "Mật khẩu mới phải có ít nhất 6 ký tự";
         }
         if (error != null) {

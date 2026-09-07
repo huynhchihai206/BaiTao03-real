@@ -23,8 +23,9 @@ public class ForgotPasswordController extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         String email = req.getParameter("email");
 
-        if (email == null || email.trim().isEmpty()) {
-            req.setAttribute("error", "Email không được để trống");
+        String emailError = ValidationUtil.email(email);
+        if (emailError != null) {
+            req.setAttribute("error", emailError);
             req.getRequestDispatcher("/views/forgot-password.jsp").forward(req, resp);
             return;
         }

@@ -2,6 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>vn.hch</groupId>
   <artifactId>BaiTap01</artifactId>
+  <name>BaiTap01</name>
   <version>1.0</version>
   <packaging>war</packaging>
   

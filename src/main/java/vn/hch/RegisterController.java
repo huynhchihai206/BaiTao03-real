@@ -38,8 +38,8 @@ public class RegisterController extends HttpServlet {
 
         try {
             userService.register(username.trim(), email.trim(), password, fullname);
-            req.setAttribute("email", email.trim());
-            req.getRequestDispatcher("/views/verify-otp.jsp").forward(req, resp);
+            req.setAttribute("message", "Đăng ký tài khoản thành công. Bạn có thể đăng nhập ngay.");
+            req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
         } catch (Exception e) {
             req.setAttribute("error", e.getMessage());
             req.setAttribute("username", username);
@@ -53,12 +53,9 @@ public class RegisterController extends HttpServlet {
         if (username == null || username.trim().isEmpty()) {
             return "Tên đăng nhập không được để trống";
         }
-        if (email == null || email.trim().isEmpty()) {
-            return "Email không được để trống";
-        }
-        if (!email.trim().matches("^[\\w.+-]+@[\\w-]+\\.[\\w.-]+$")) {
-            return "Email không đúng định dạng";
-        }
+        String emailError = ValidationUtil.email(email);
+        if (emailError != null)
+            return emailError;
         if (password == null || password.length() < 6) {
             return "Mật khẩu phải có ít nhất 6 ký tự";
         }

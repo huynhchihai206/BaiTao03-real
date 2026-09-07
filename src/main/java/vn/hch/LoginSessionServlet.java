@@ -5,14 +5,14 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 
-@WebServlet(urlPatterns = {"/login-session"})
+@WebServlet(urlPatterns = { "/login-session" })
 public class LoginSessionServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String user = req.getParameter("username");
         String pass = req.getParameter("password");
-        
-        if (user.equals("chihai") && pass.equals("123")) {
+
+        if ("chihai".equals(user) && "123".equals(pass)) {
             HttpSession session = req.getSession();
             session.setAttribute("name", user);
             resp.sendRedirect("profile");

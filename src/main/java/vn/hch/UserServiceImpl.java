@@ -39,18 +39,8 @@ public class UserServiceImpl implements IUserService {
         user.setEmail(email);
         user.setPassword(PasswordUtil.hash(password));
         user.setFullname(fullname);
-        user.setActive(false);
-
-        String otp = OtpUtil.generateOtp();
-        user.setOtp(otp);
-        user.setOtpExpiry(LocalDateTime.now().plusMinutes(5));
-
+        user.setActive(true);
         userDao.insert(user);
-
-        String content = "<p>Xin chào " + fullname + ",</p>"
-                + "<p>Mã OTP kích hoạt tài khoản của bạn là: <b>" + otp + "</b></p>"
-                + "<p>Mã có hiệu lực trong 5 phút.</p>";
-        MailUtil.sendMail(email, "Kich hoat tai khoan", content);
     }
 
     @Override
